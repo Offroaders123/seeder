@@ -151,7 +151,7 @@ export const VERSIONS = /** @type {const} */ ({
     "1.21.4": 28,
 });
 
-/** @type {import("./VersionsOptions.js").VersionsOptions[]} */
+/** @type {import("./VersionsOptions.d.ts").VersionsOptions[]} */
 export const VERSIONS_OPTIONS = Object.keys(VERSIONS).map(v => ({ label: /** @type {keyof typeof VERSIONS} */ (v), value: VERSIONS[/** @type {keyof typeof VERSIONS} */ (v)] }));
 
 export const STRUCTURES_OPTIONS = [

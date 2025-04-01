@@ -6,7 +6,7 @@ export class QueueManager {
     constructor(path, numberOfWorkers) {
         this.path = path;
         this.numberOfWorkers = numberOfWorkers ?? navigator.hardwareConcurrency ?? 1;
-        /** @type {(Worker & { name: string; busy: boolean; callback: (seed: string) => void; })[]} */
+        /** @type {(Worker & { name: string; busy: boolean; callback: (...args: any[]) => void; })[]} */
         this.workers = [];
         this.workerCounter = 0;
         this.COLORS = null;
@@ -107,7 +107,7 @@ export class QueueManager {
     /**
      * @param {string} mcVersion
      * @param {string} seed
-     * @param {(seed: string) => void} callback
+     * @param {(x: number, z: number) => void} callback
      * @returns {void}
      */
     findSpawn(mcVersion, seed, callback) {
@@ -129,7 +129,7 @@ export class QueueManager {
      * @param {string} mcVersion
      * @param {string} seed
      * @param {number} howMany
-     * @param {(seed: string) => void} callback
+     * @param {(strongholds: object) => void} callback
      * @returns {void}
      */
     findStrongholds(mcVersion, seed, howMany, callback) {

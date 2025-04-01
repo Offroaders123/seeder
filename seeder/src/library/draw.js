@@ -1,10 +1,24 @@
 import { BIOMES } from '../util/constants';
 
 export class DrawSeed {
+    /**
+     * @param {string} mcVersion
+     * @param {import("./queue.js").QueueManager} queue
+     * @param {HTMLCanvasElement} canvas
+     * @param {(arg0: string | number, arg1: string | number, arg2: string | number) => void} onclick
+     * @param {{ (x: any, z: any, biome: any): void; (arg0: string | number, arg1: string | number, arg2: string | number): void; }} onmousemove
+     * @param {number} drawDim
+     * @param {number} pixDim
+     * @param {number} [offsetX]
+     * @param {number} [offsetZ]
+     */
     constructor(mcVersion, queue, canvas, onclick, onmousemove, drawDim, pixDim, offsetX, offsetZ) {
         this.mcVersion = mcVersion;
+        /** @type {string} */
+        this.seed;
         this.dimension = 0; // Overworld
         this.yHeight = 320; // Top of the world
+        /** @type {import("./queue.js").QueueManager & { pixDim?: number; }} */
         this.queue = queue;
         this.canvas = canvas;
         this.biomesDict = {};
@@ -18,7 +32,9 @@ export class DrawSeed {
         this.spawnZ = null;
         this.strongholdsShown = false;
         this.strongholds = null;
+        /** @type {Record<string, boolean>} */
         this.structuresShown = {};
+        /** @type {Record<string, object[]>} */
         this.structures = {};
         this.toDraw = 0;
         this.showStructureCoords = true;
@@ -42,6 +58,9 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     clear() {
         this.biomesDict = {};
         this.spawnX = null;
@@ -54,34 +73,58 @@ export class DrawSeed {
         this.offsetZ = Math.floor((this.canvas.height / this.drawDim) / 2);
     }
 
+    /**
+     * @param {boolean} value
+     * @returns {void}
+     */
     setShowStructureCoords(value) {
         if (value !== this.showStructureCoords) {
             this.showStructureCoords = value;
         }
     }
 
+    /**
+     * @param {string} seed
+     * @returns {void}
+     */
     setSeed(seed) {
         if (this.seed !== seed) {
             this.seed = seed;
         }
     }
 
+    /**
+     * @param {number} dimension
+     * @returns {void}
+     */
     setDimension(dimension) {
         if (this.dimension !== dimension) {
             this.dimension = dimension;
         }
     }
 
+    /**
+     * @param {number} yHeight
+     * @returns {void}
+     */
     setYHeight(yHeight) {
         if (this.yHeight !== yHeight) {
             this.yHeight = yHeight;
         }
     }
 
+    /**
+     * @param {string} mcVersion
+     * @returns {void}
+     */
     setMcVersion(mcVersion) {
         this.mcVersion = mcVersion;
     }
 
+    /**
+     * @param {(seed: string, x: number, y: number) => void} callback
+     * @returns {void}
+     */
     findSpawn(callback) {
         if (this.spawnX && this.spawnZ) {
             if (callback) callback(this.seed, this.spawnX, this.spawnZ);
@@ -95,6 +138,10 @@ export class DrawSeed {
         });
     }
 
+    /**
+     * @param {(seed: string, strongholds: typeof this.strongholds) => void} callback
+     * @returns {void}
+     */
     findStrongholds(callback) {
         if (this.strongholds?.length > 0) {
             if (callback) callback(this.seed, this.strongholds);
@@ -107,6 +154,11 @@ export class DrawSeed {
         });
     }
 
+    /**
+     * @param {string} structType
+     * @param {(seed: string, structure: object) => void} callback
+     * @returns {void}
+     */
     findStructure(structType, callback) {
         if (this.structures && this.structures[structType]?.length > 0) {
             if (callback) callback(this.seed, this.structures[structType]);
@@ -120,6 +172,10 @@ export class DrawSeed {
         });
     }
 
+    /**
+     * @param {string[]} structTypes
+     * @returns {void}
+     */
     setStructuresShown(structTypes) {
         this.structuresShown = {};
         for (const structType of structTypes) {
@@ -127,6 +183,12 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @param {number} xDim
+     * @param {number} yDim
+     * @param {(x: number, y: number) => boolean} callback
+     * @returns {void}
+     */
     spiral(xDim, yDim, callback) {
         let x = 0;
         let y = 0;
@@ -195,6 +257,9 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     zoom() {
         if (this.pixDim < 5) {
             this.pixDim++;
@@ -203,6 +268,9 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     dezoom() {
         if (this.pixDim > 1) {
             this.pixDim--;
@@ -212,6 +280,9 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     down() {
         if (this.toDraw === 0) {
             this.offsetZ--;
@@ -249,6 +320,9 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     up() {
         if (this.toDraw === 0) {
             this.offsetZ++;
@@ -285,6 +359,9 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     right() {
         if (this.toDraw === 0) {
             this.offsetX--;
@@ -322,6 +399,9 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     left() {
         if (this.toDraw === 0) {
             this.offsetX++;
@@ -358,6 +438,12 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @param {string} text
+     * @param {number} x
+     * @param {number} z
+     * @returns {void}
+     */
     drawText(text, x, z) {
         if (this.showStructureCoords) {
             this.ctx.font = "bold 10px Minecraft";
@@ -371,6 +457,9 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     drawStructures() {
         if (this.spawnShown && this.dimension === 0 && this.spawnX != null && this.spawnZ != null) {
             let drawX = Math.floor(this.spawnX / 4) * this.pixDim + this.offsetX * this.drawDim;
@@ -447,6 +536,9 @@ export class DrawSeed {
         }
     }
 
+    /**
+     * @returns {void}
+     */
     _drawLoop(colors, startX, startY, drawStartX, drawStartY, widthX, widthY) {
         startX = Math.floor(startX);
         startY = Math.floor(startY);
