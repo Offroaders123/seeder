@@ -1,6 +1,6 @@
 import React from "react";
 
-export const BIOMES = [
+export const BIOMES = /** @type {const} */ ([
     { value: 0, label: "Ocean" },
     { value: 1, label: "Plains" },
     { value: 2, label: "Desert" },
@@ -95,9 +95,9 @@ export const BIOMES = [
     { value: 184, label: "Mangrove Swamp" },
     { value: 185, label: "Cherry Grove" },
     { value: 186, label: "Pale Garden" },
-];
+]);
 
-export const OLD_VERSIONS = {
+export const OLD_VERSIONS = /** @type {const} */ ({
     0: "1.0",
     1: "1.1",
     2: "1.2",
@@ -118,9 +118,9 @@ export const OLD_VERSIONS = {
     17: "1.17",
     18: "1.18",
     19: "1.19",
-};
+});
 
-export const VERSIONS = {
+export const VERSIONS = /** @type {const} */ ({
     "Beta 1.7": 1,
     "Beta 1.8": 2,
     "1.0": 3,
@@ -149,9 +149,10 @@ export const VERSIONS = {
     "1.21.1": 26,
     "1.21.3": 27,
     "1.21.4": 28,
-};
+});
 
-export const VERSIONS_OPTIONS = Object.keys(VERSIONS).map(v => ({ label: v, value: VERSIONS[v] }));
+/** @type {import("./VersionsOptions.js").VersionsOptions[]} */
+export const VERSIONS_OPTIONS = Object.keys(VERSIONS).map(v => ({ label: /** @type {keyof typeof VERSIONS} */ (v), value: VERSIONS[/** @type {keyof typeof VERSIONS} */ (v)] }));
 
 export const STRUCTURES_OPTIONS = [
     { value: 1, pureText: "Desert Pyramid", label: <div className="flex-row flex-align-center"><img alt="Desert Pyramid" src="/img/temple.png" style={{ paddingRight: '15px' }} height="30px" width="30px" />Desert Pyramid</div> },
