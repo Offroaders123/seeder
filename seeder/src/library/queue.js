@@ -1,20 +1,49 @@
 export class QueueManager {
+    /**
+     * @param {string} path
+     * @param {number} [numberOfWorkers]
+     */
     constructor(path, numberOfWorkers) {
         this.path = path;
         this.numberOfWorkers = numberOfWorkers ?? navigator.hardwareConcurrency ?? 1;
+        /** @type {(Worker & { name: string; busy: boolean; callback: (seed: string) => void; })[]} */
         this.workers = [];
         this.workerCounter = 0;
         this.COLORS = null;
+        /** @type {Record<string, unknown>} */
         this.drawCache = {};
         this.seedUpdateCallback = null;
         this._spawnWorkers();
         this.getColors();
     }
 
+    /**
+     * @param {string} mcVersion
+     * @param {string} seed
+     * @param {string} startX
+     * @param {string} startY
+     * @param {string} widthX
+     * @param {string} widthY
+     * @param {string} dimension
+     * @param {string} yHeight
+     * @returns {string}
+     */
     getCacheKey(mcVersion, seed, startX, startY, widthX, widthY, dimension, yHeight) {
         return mcVersion + "-" + seed + "-" + startX + "-" + startY + "-" + widthX + "-" + widthY + "-" + dimension + "-" + yHeight;
     }
 
+    /**
+     * @param {string} mcVersion
+     * @param {string} seed
+     * @param {string} startX
+     * @param {string} startY
+     * @param {string} widthX
+     * @param {string} widthY
+     * @param {string} dimension
+     * @param {string} yHeight
+     * @param {(colors: typeof this.drawCache[number]) => void} callback
+     * @returns {void}
+     */
     draw(mcVersion, seed, startX, startY, widthX, widthY, dimension, yHeight, callback, force = false) {
         if (!force) {
             const cacheKey = this.getCacheKey(mcVersion, seed, startX, startY, widthX, widthY, dimension, yHeight);
@@ -38,6 +67,20 @@ export class QueueManager {
         setTimeout(() => this.draw(mcVersion, seed, startX, startY, widthX, widthY, dimension, yHeight, callback, true), 1);
     }
 
+    /**
+     * @param {string} mcVersion
+     * @param {string[]} biomes
+     * @param {number} x
+     * @param {number} z
+     * @param {number} widthX
+     * @param {number} widthZ
+     * @param {number} startingSeed
+     * @param {number} dimension
+     * @param {number} yHeight
+     * @param {number} threads
+     * @param {(seed: string) => void} callback
+     * @returns {void}
+     */
     findBiomes(mcVersion, biomes, x, z, widthX, widthZ, startingSeed, dimension, yHeight, threads, callback) {
         startingSeed = startingSeed ?? 0;
         for (let worker of this.workers) {
@@ -61,6 +104,12 @@ export class QueueManager {
         }
     }
 
+    /**
+     * @param {string} mcVersion
+     * @param {string} seed
+     * @param {(seed: string) => void} callback
+     * @returns {void}
+     */
     findSpawn(mcVersion, seed, callback) {
         for (let worker of this.workers) {
             if (!worker.busy) {
@@ -76,6 +125,13 @@ export class QueueManager {
         setTimeout(() => this.findSpawn(mcVersion, seed, callback), 1);
     }
 
+    /**
+     * @param {string} mcVersion
+     * @param {string} seed
+     * @param {number} howMany
+     * @param {(seed: string) => void} callback
+     * @returns {void}
+     */
     findStrongholds(mcVersion, seed, howMany, callback) {
         for (let worker of this.workers) {
             if (!worker.busy) {
@@ -91,6 +147,18 @@ export class QueueManager {
         setTimeout(() => this.findStrongholds(mcVersion, seed, howMany, callback), 1);
     }
 
+    /**
+     * @param {string} mcVersion
+     * @param {string} structType
+     * @param {number} x
+     * @param {number} z
+     * @param {number} range
+     * @param {number} startingSeed
+     * @param {number} dimension
+     * @param {number} threads
+     * @param {(seed: string) => void} callback
+     * @returns {void}
+     */
     findStructures(mcVersion, structType, x, z, range, startingSeed, dimension, threads, callback) {
         startingSeed = startingSeed ?? 0;
         for (let worker of this.workers) {
@@ -114,6 +182,20 @@ export class QueueManager {
         }
     }
 
+    /**
+     * @param {string} mcVersion
+     * @param {string} structType
+     * @param {string[]} biomes
+     * @param {number} x
+     * @param {number} z
+     * @param {number} range
+     * @param {number} startingSeed
+     * @param {number} dimension
+     * @param {number} yHeight
+     * @param {number} threads
+     * @param {(seed: string) => void} callback
+     * @returns {void}
+     */
     findBiomesWithStructures(mcVersion, structType, biomes, x, z, range, startingSeed, dimension, yHeight, threads, callback) {
         startingSeed = startingSeed ?? 0;
         for (let worker of this.workers) {
@@ -137,6 +219,15 @@ export class QueueManager {
         }
     }
 
+    /**
+     * @param {string} mcVersion
+     * @param {string} structType
+     * @param {string} seed
+     * @param {number} regionsRange
+     * @param {number} dimension
+     * @param {(seed: string) => void} callback
+     * @returns {void}
+     */
     getStructuresInRegions(mcVersion, structType, seed, regionsRange, dimension, callback) {
         for (let worker of this.workers) {
             if (!worker.busy) {
@@ -152,6 +243,9 @@ export class QueueManager {
         setTimeout(() => this.getStructuresInRegions(mcVersion, structType, seed, regionsRange, dimension, callback), 1);
     }
 
+    /**
+     * @returns {void}
+     */
     getColors() {
         for (let worker of this.workers) {
             if (!worker.busy) {
@@ -165,10 +259,16 @@ export class QueueManager {
         setTimeout(() => this.getColors(), 1);
     }
 
+    /**
+     * @returns {void}
+     */
     printStatus() {
         console.log("Total workers: " + this.workers.length + " -  Busy: " + this.workers.filter(w => w.busy).length);
     }
 
+    /**
+     * @returns {void}
+     */
     killAll() {
         for (const worker of this.workers) {
             worker.terminate();
@@ -176,11 +276,17 @@ export class QueueManager {
         this.workers = [];
     }
 
+    /**
+     * @returns {void}
+     */
     restartAll() {
         this.killAll();
         this._spawnWorkers();
     }
 
+    /**
+     * @returns {void}
+     */
     _spawnWorkers() {
         for (let i = 0; i < this.numberOfWorkers; i++) {
             this._spawnWorker((w) => {
@@ -189,13 +295,25 @@ export class QueueManager {
         }
     }
 
+    /**
+     * @param {(worker: typeof this.workers[number]) => void} callback
+     * @returns {void}
+     */
     _spawnWorker(callback) {
-        const worker = new Worker(this.path);
+        const worker = /** @type {typeof this.workers[number]} */ (new Worker(this.path));
         worker.name = "Worker_" + this.workerCounter++;
         worker.busy = true;
         worker.addEventListener('message', (e) => this._commonListener(e, worker, callback));
     }
 
+    /**
+     * Types not completed yet for worker messages passing. Currently typed as 'unknown'.
+     * 
+     * @param {MessageEvent<unknown>} e
+     * @param {typeof this.workers[number]} worker
+     * @param {(worker: (typeof this.workers)[number]) => void} callback
+     * @returns {void}
+     */
     _commonListener(e, worker, callback) {
         if (e.data.kind === "DONE_LOADING") {
             worker.busy = false;
@@ -250,6 +368,10 @@ export class QueueManager {
         }
     }
 
+    /**
+     * @param {typeof this.workers[number]} worker
+     * @returns {void}
+     */
     _cleanWorker(worker) {
         worker.callback = null;
         worker.busy = false;

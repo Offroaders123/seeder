@@ -217,6 +217,10 @@ export default function Seeder() {
                 setSeedFindingSpeed(speed);
             }
 
+            /**
+             * @param {React.SetStateAction<string>} foundSeed
+             * @returns {void}
+             */
             const callback = (foundSeed) => {
                 foundSeed = "" + foundSeed;
                 setSeed(foundSeed);
