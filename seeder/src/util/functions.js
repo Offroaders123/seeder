@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react';
 
+/**
+ * @type {<T extends (...args: any[]) => void>(func: T, wait?: number) => (...args: Parameters<T>) => void}
+ */
 export const debounce = (func, wait = 25) => {
+    /** @type {number} */
     let timeout;
     return (...args) => {
         clearTimeout(timeout);
+        // @ts-expect-error - This is because of @types/node
         timeout = setTimeout(() => {
             func.apply(this, args);
         }, wait);
     };
 }
 
+/**
+ * @param {string} textToCopy
+ * @returns {Promise<void>}
+ */
 export const copyToClipboard = (textToCopy) => {
     // navigator clipboard api needs a secure context (https)
     if (navigator.clipboard && window.isSecureContext) {
@@ -34,6 +43,12 @@ export const copyToClipboard = (textToCopy) => {
     }
 }
 
+/**
+ * @param {string} seed
+ * @param {string} mcVersion
+ * @param {React.Dispatch<string>} setButtonText
+ * @returns {void}
+ */
 export const setUrl = (seed, mcVersion, setButtonText) => {
     if (window.history.pushState) {
         let newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
@@ -44,6 +59,11 @@ export const setUrl = (seed, mcVersion, setButtonText) => {
 }
 
 // useDebounce hook (taken from https://usehooks.com/useDebounce/)
+/**
+ * @param {number} value
+ * @param {number} delay
+ * @returns {number}
+ */
 export function useDebounce(value, delay) {
     // State and setters for debounced value
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -65,8 +85,12 @@ export function useDebounce(value, delay) {
     return debouncedValue;
 }
 
+/**
+ * @param {number} milliseconds
+ * @returns {string}
+ */
 export const toHHMMSS = function (milliseconds) {
-    const sec_num = parseInt(milliseconds / 1000, 10);
+    const sec_num = parseInt((milliseconds / 1000).toString(), 10);
     let hours = Math.floor(sec_num / 3600);
     let minutes = Math.floor((sec_num - (hours * 3600)) / 60);
     let seconds = sec_num - (hours * 3600) - (minutes * 60);
