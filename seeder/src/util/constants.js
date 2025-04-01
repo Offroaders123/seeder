@@ -1,3 +1,5 @@
+import React from "react";
+
 export const BIOMES = [
     { value: 0, label: "Ocean" },
     { value: 1, label: "Plains" },
